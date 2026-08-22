@@ -6,7 +6,6 @@ import TradingViewChart from '../components/TradingViewChart'
 import {
   SENAL_LABELS,
   TIMEFRAME_LABELS,
-  VISTA_LABELS,
   TV_SYMBOLS,
   directionLabel,
   badgeClass,
@@ -14,25 +13,6 @@ import {
   fmtPct,
   fmtNum,
 } from '../utils'
-
-function FactorRow({ label, direction, fuerza }) {
-  if (direction === null || direction === undefined) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-        <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
-        <span style={{ color: 'var(--text-muted)' }}>—</span>
-      </div>
-    )
-  }
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-      <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
-      <span style={{ color: textColor(direction) }}>
-        {directionLabel(direction)} <span style={{ color: 'var(--text-muted)' }}>{fmtPct(fuerza)}</span>
-      </span>
-    </div>
-  )
-}
 
 export default function Analysis() {
   const { asset } = useAsset()
@@ -113,7 +93,6 @@ export default function Analysis() {
   }, [asset])
 
   const changePct = price && prevClose ? (((price - prevClose) / prevClose) * 100).toFixed(2) : null
-  const vistaOrder = ['vista_intraday', '4h_puro', 'vista_inversion', '1d_puro']
   const tfOrder = ['15m', '4h', '1d', '1w']
   const motor4h = motor3.find((m) => m.timeframe === '4h')
   const motor1d = motor3.find((m) => m.timeframe === '1d')
