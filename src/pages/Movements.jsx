@@ -14,6 +14,33 @@ const emptyForm = {
   notas: '',
 }
 
+function InvestmentCard({ c }) {
+  return (
+    <div className="card">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <span style={{ fontSize: 13, fontWeight: 500 }}>
+          {ASSETS[c.activo]?.symbol} {c.activo}
+        </span>
+        <span
+          className={c.estado === 'activa' ? 'badge badge-alcista' : 'badge'}
+          style={c.estado !== 'activa' ? { background: 'var(--bg-card-2)', color: 'var(--text-secondary)' } : {}}
+        >
+          {c.estado === 'activa' ? 'Activa' : 'Cerrada'}
+        </span>
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8 }}>
+        Compra ${fmtNum(c.precio_compra)} · {fmtNum(c.cantidad, 4)} {c.activo}
+      </div>
+      {c.pct_ganancia != null && (
+        <div style={{ fontSize: 16, fontWeight: 500, color: c.pct_ganancia >= 0 ? 'var(--alcista)' : 'var(--bajista)' }}>
+          {c.pct_ganancia >= 0 ? '+' : ''}
+          {fmtNum(c.pct_ganancia)}%
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Movements() {
   const { session } = useAuth()
   const [tab, setTab] = useState('trades')
@@ -183,34 +210,48 @@ export default function Movements() {
       )}
 
       {!loading && tab === 'fichas' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <>
+          <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8 }}>Activas</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 18 }}>
+            {cards.filter((c) => c.estado === 'activa').length === 0 && (
+              <div className="card" style={{ gridColumn: '1 / 3', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>
+                Sin fichas activas.
+              </div>
+            )}
+            {cards
+              .filter((c) => c.estado === 'activa')
+              .map((c) => (
+                <InvestmentCard key={c.id} c={c} />
+              ))}
+          </div>
+
+          {Object.entries(
+            cards
+              .filter((c) => c.estado !== 'activa')
+              .reduce((acc, c) => {
+                const d = new Date(c.fecha_venta || c.fecha_compra)
+                const key = d.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' })
+                acc[key] = acc[key] || []
+                acc[key].push(c)
+                return acc
+              }, {})
+          ).map(([month, list]) => (
+            <div key={month} style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8, textTransform: 'capitalize' }}>{month}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                {list.map((c) => (
+                  <InvestmentCard key={c.id} c={c} />
+                ))}
+              </div>
+            </div>
+          ))}
+
           {cards.length === 0 && (
-            <div className="card" style={{ gridColumn: '1 / 3', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>
+            <div className="card" style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>
               Aún no hay fichas de inversión registradas.
             </div>
           )}
-          {cards.map((c) => (
-            <div key={c.id} className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontSize: 13, fontWeight: 500 }}>
-                  {ASSETS[c.activo]?.symbol} {c.activo}
-                </span>
-                <span className={c.estado === 'activa' ? 'badge badge-alcista' : 'badge'} style={c.estado !== 'activa' ? { background: 'var(--bg-card-2)', color: 'var(--text-secondary)' } : {}}>
-                  {c.estado === 'activa' ? 'Activa' : 'Cerrada'}
-                </span>
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8 }}>
-                Compra ${fmtNum(c.precio_compra)} · {fmtNum(c.cantidad, 4)} {c.activo}
-              </div>
-              {c.pct_ganancia != null && (
-                <div style={{ fontSize: 16, fontWeight: 500, color: c.pct_ganancia >= 0 ? 'var(--alcista)' : 'var(--bajista)' }}>
-                  {c.pct_ganancia >= 0 ? '+' : ''}
-                  {fmtNum(c.pct_ganancia)}%
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        </>
       )}
 
       {showForm && (
