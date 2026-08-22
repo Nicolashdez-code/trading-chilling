@@ -166,27 +166,76 @@ export default function Analysis() {
         <>
           <div className="card" style={{ marginBottom: 14 }}>
             <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 12 }}>Análisis técnico</div>
-            {vistaOrder.map((v) => {
-              const row = nivel1.find((r) => r.vista === v)
-              if (!row) return null
+            {(() => {
+              const cols = [
+                { vista: '15m_puro', label: '15m', peso: '40%' },
+                { vista: '4h_puro', label: '4H', peso: '60%' },
+                { vista: '1d_puro', label: '1D', peso: '40%' },
+                { vista: '1w_puro', label: 'S', peso: '60%' },
+              ]
+              const get = (v) => nivel1.find((r) => r.vista === v)
+              const rowsFound = cols.filter((c) => get(c.vista)).length
+              if (rowsFound === 0) {
+                return <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Aún sin snapshots para este activo.</div>
+              }
+              const factorRows = [
+                { key: 'hull', label: 'Hull trend' },
+                { key: 'squeeze', label: 'Squeeze mom.' },
+                { key: 'ema', label: 'EMA 20/55' },
+                { key: 'adx', label: 'ADX/DMI' },
+              ]
               return (
-                <div key={v} style={{ borderBottom: '0.5px solid var(--border)', padding: '10px 0' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{VISTA_LABELS[v]}</span>
-                    <span className={badgeClass(row.score_direction)}>
-                      {directionLabel(row.score_direction)} {fmtPct(row.score_fuerza)}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <FactorRow label="Hull trend" direction={row.hull_direction} fuerza={row.hull_fuerza} />
-                    <FactorRow label="Squeeze momentum" direction={row.squeeze_direction} fuerza={row.squeeze_fuerza} />
-                    <FactorRow label="EMA 20/55" direction={row.ema_direction} fuerza={row.ema_fuerza} />
-                    <FactorRow label="ADX/DMI" direction={row.adx_direction} fuerza={row.adx_fuerza} />
-                  </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '100px repeat(4,1fr)', gap: '5px 8px' }}>
+                  <div />
+                  <div style={{ gridColumn: '2 / 4', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 10, textTransform: 'uppercase' }}>Intraday</div>
+                  <div style={{ gridColumn: '4 / 6', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 10, textTransform: 'uppercase' }}>Inversión</div>
+                  <div />
+                  {cols.map((c) => (
+                    <div key={c.vista} style={{ textAlign: 'center', fontSize: 11 }}>
+                      {c.label}
+                      <br />
+                      <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>{c.peso}</span>
+                    </div>
+                  ))}
+                  {factorRows.map((f) => (
+                    <>
+                      <div key={f.key} style={{ color: 'var(--text-secondary)', fontSize: 11, alignSelf: 'center' }}>{f.label}</div>
+                      {cols.map((c) => {
+                        const row = get(c.vista)
+                        const dir = row?.[`${f.key}_direction`]
+                        const fuerza = row?.[`${f.key}_fuerza`]
+                        return (
+                          <div key={c.vista + f.key} style={{ textAlign: 'center', fontSize: 11, color: dir ? textColor(dir) : 'var(--text-muted)' }}>
+                            {dir ? (
+                              <>
+                                {directionLabel(dir).slice(0, 3)} <span style={{ color: 'var(--text-muted)' }}>{fmtPct(fuerza)}</span>
+                              </>
+                            ) : (
+                              '—'
+                            )}
+                          </div>
+                        )
+                      })}
+                    </>
+                  ))}
+                  <div style={{ color: 'var(--text-primary)', fontSize: 11, fontWeight: 500, alignSelf: 'center', paddingTop: 8, borderTop: '0.5px solid var(--border)' }}>Señal</div>
+                  {cols.map((c) => {
+                    const row = get(c.vista)
+                    return (
+                      <div key={c.vista + 'signal'} style={{ textAlign: 'center', paddingTop: 8, borderTop: '0.5px solid var(--border)' }}>
+                        {row ? (
+                          <span className={badgeClass(row.score_direction)} style={{ fontSize: 10, padding: '3px 8px' }}>
+                            {directionLabel(row.score_direction)} {fmtPct(row.score_fuerza)}
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>—</span>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               )
-            })}
-            {nivel1.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Aún sin snapshots para este activo.</div>}
+            })()}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
