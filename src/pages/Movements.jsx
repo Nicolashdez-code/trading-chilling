@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { ASSETS } from '../context/AssetContext'
 import { fmtNum } from '../utils'
+import Icon from '../components/Icon'
 
 const emptyForm = {
   broker: 'ftmo',
@@ -145,7 +146,7 @@ export default function Movements() {
             cursor: 'pointer',
           }}
         >
-          <i className="ti ti-plus" style={{ fontSize: 20, color: 'var(--accent-text)' }} aria-hidden="true" />
+          <Icon name="plus" size={20} color="var(--accent-text)" />
         </div>
       </div>
 
@@ -262,7 +263,9 @@ export default function Movements() {
           <div onClick={(e) => e.stopPropagation()} className="card" style={{ maxWidth: 360, width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <span style={{ fontSize: 14, fontWeight: 500 }}>Nuevo movimiento</span>
-              <i className="ti ti-x" onClick={() => setShowForm(false)} style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} aria-hidden="true" />
+              <span onClick={() => setShowForm(false)} style={{ cursor: 'pointer', display: 'flex' }}>
+                <Icon name="x" size={16} color="var(--text-secondary)" />
+              </span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={{ display: 'flex', gap: 8 }}>
@@ -313,7 +316,7 @@ export default function Movements() {
               </div>
               <div style={{ background: 'var(--accent-soft-bg)', borderRadius: 10, padding: '9px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: 11, color: 'var(--accent)' }}>El snapshot de Motor 1 se guarda automáticamente al enviar</span>
-                <i className="ti ti-camera" style={{ fontSize: 14, color: 'var(--accent)' }} aria-hidden="true" />
+                <Icon name="camera" size={14} color="var(--accent)" />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>

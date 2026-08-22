@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ASSETS, useAsset } from '../context/AssetContext'
+import Icon from './Icon'
 
 export default function AssetSelector() {
   const { asset, setAsset } = useAsset()
@@ -23,7 +24,7 @@ export default function AssetSelector() {
       >
         <span style={{ color: current.color, fontWeight: 500 }}>{current.symbol}</span>
         <span>{current.label}</span>
-        <i className="ti ti-chevron-down" style={{ fontSize: 13, color: 'var(--text-secondary)' }} aria-hidden="true" />
+        <Icon name="chevron-down" size={13} color="var(--text-secondary)" />
       </div>
       {open && (
         <div

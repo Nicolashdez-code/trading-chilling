@@ -46,6 +46,32 @@ a { color: inherit; }
   min-height: 100%;
 }
 
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-around;
+  background: var(--bg-card);
+  border-top: 0.5px solid var(--border);
+  padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Escritorio: la interfaz usa el ancho de la pantalla. El móvil no cambia. */
+@media (min-width: 900px) {
+  .app-shell {
+    max-width: 1400px;
+    padding: 24px 40px 110px;
+  }
+  .bottom-nav {
+    max-width: 1400px;
+    padding: 12px 40px calc(12px + env(safe-area-inset-bottom));
+  }
+}
+
 .card {
   background: var(--bg-card);
   border-radius: var(--radius-card);

@@ -1,28 +1,15 @@
 import { NavLink } from 'react-router-dom'
+import Icon from './Icon'
 
 const items = [
-  { to: '/movimientos', label: 'Movimientos', icon: 'ti-notebook' },
-  { to: '/', label: 'Análisis', icon: 'ti-chart-candle', end: true },
-  { to: '/ajustes', label: 'Ajustes', icon: 'ti-settings' },
+  { to: '/movimientos', label: 'Movimientos', icon: 'notebook' },
+  { to: '/', label: 'Análisis', icon: 'chart-candle', end: true },
+  { to: '/ajustes', label: 'Ajustes', icon: 'settings' },
 ]
 
 export default function BottomNav() {
   return (
-    <nav
-      style={{
-        position: 'fixed',
-        left: 0,
-        right: 0,
-        bottom: 0,
-        display: 'flex',
-        justifyContent: 'space-around',
-        background: 'var(--bg-card)',
-        borderTop: '0.5px solid var(--border)',
-        padding: '10px 8px calc(10px + env(safe-area-inset-bottom))',
-        maxWidth: 720,
-        margin: '0 auto',
-      }}
-    >
+    <nav className="bottom-nav">
       {items.map((item) => (
         <NavLink
           key={item.to}
@@ -38,7 +25,7 @@ export default function BottomNav() {
             fontSize: 10,
           })}
         >
-          <i className={`ti ${item.icon}`} style={{ fontSize: 19 }} aria-hidden="true" />
+          <Icon name={item.icon} size={19} />
           <span>{item.label}</span>
         </NavLink>
       ))}
