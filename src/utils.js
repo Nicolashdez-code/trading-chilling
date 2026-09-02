@@ -44,6 +44,16 @@ export function textColor(d) {
   return 'var(--neutral)'
 }
 
+// Color tenue (65% opacidad) para las notas de Estado 2 de Nivel 2 — mismo semáforo
+// que la dirección principal, pero sin la misma fuerza visual porque es solo informativo.
+export function estado2DimColor(texto) {
+  if (!texto) return 'var(--text-secondary)'
+  const t = texto.toLowerCase()
+  if (t.includes('alcista')) return 'var(--alcista-dim)'
+  if (t.includes('bajista')) return 'var(--bajista-dim)'
+  return 'var(--text-secondary)'
+}
+
 export function fmtPct(n) {
   if (n === null || n === undefined) return '—'
   return `${Number(n).toFixed(1)}%`
@@ -54,19 +64,22 @@ export function fmtNum(n, decimals = 2) {
   return Number(n).toLocaleString('es-CO', { maximumFractionDigits: decimals })
 }
 
-// Etiquetas legibles para las llaves del jsonb "detalle" de nivel3_senales
+// Etiquetas legibles para las llaves del jsonb "detalle" de nivel3_senales.
+// 'metodologia' y 'top10_referencia_musd' se excluyen a propósito de esta lista: se
+// muestran aparte con su propio tratamiento visual en el modal de detalle.
 export const DETALLE_LABELS = {
-  dias_transcurridos: 'Días transcurridos',
-  dias_promedio_historico: 'Promedio histórico (días)',
-  pct_actual: 'Ganancia capturada',
-  pct_promedio_historico: 'Promedio histórico de ganancia',
   fase_activa: 'Fase del ciclo',
-  fuerza_posicion_temporal: 'Fuerza · posición temporal',
-  fuerza_magnitud_capturada: 'Fuerza · magnitud capturada',
-  muestra_ciclos_completos: 'Ciclos completos en la muestra',
-  dias_restantes_estimados_fase: 'Días restantes estimados de fase',
+  dias_transcurridos: 'Días transcurridos',
+  dias_promedio_referencia: 'Días promedio de referencia',
+  pct_recorrido: 'Recorrido de la fase',
+  pct_recorrido_capado: 'Recorrido capado (100% máx.)',
+  ancla_fecha: 'Fecha de referencia de la fase',
+  ancla_precio: 'Precio de referencia de la fase',
+  ultimo_ath_fecha: 'Fecha del último máximo (ATH)',
+  ultimo_ath_precio: 'Precio del último máximo (ATH)',
+  ultimo_minimo_ciclo_fecha: 'Fecha del último mínimo de ciclo',
+  ultimo_minimo_ciclo_precio: 'Precio del último mínimo de ciclo',
   flujo_actual_musd: 'Flujo de hoy',
-  promedio_referencia_30d_musd: 'Promedio de referencia (30d)',
   fecha_flujo: 'Fecha del dato',
   tasa_actual: 'Tasa actual',
   ultimo_cambio_pct: 'Último cambio',
@@ -77,14 +90,18 @@ export const DETALLE_LABELS = {
   percentil_historico: 'Percentil histórico',
 }
 
+// Llaves del jsonb "detalle" que no se listan como fila genérica en el modal porque
+// tienen su propio bloque visual (metodología al final, top-10 de flujos ETF, etc.)
+export const DETALLE_HIDDEN_KEYS = ['metodologia', 'top10_referencia_musd']
+
 // Línea corta con el dato real (no solo dirección/fuerza) para mostrar bajo cada señal
 export function detalleResumen(senal, detalle) {
   if (!detalle) return null
   switch (senal) {
     case 'ciclo_halving':
-      return `${fmtNum(detalle.dias_transcurridos, 0)}d transcurridos (prom. ${fmtNum(detalle.dias_promedio_historico, 0)}d) · ${fmtNum(detalle.pct_actual, 1)}% capturado`
+      return `${fmtNum(detalle.dias_transcurridos, 0)}d transcurridos (prom. ${fmtNum(detalle.dias_promedio_referencia, 0)}d) · ${fmtNum(detalle.pct_recorrido_capado, 1)}% del recorrido`
     case 'flujos_etf':
-      return `${detalle.flujo_actual_musd >= 0 ? '+' : ''}${fmtNum(detalle.flujo_actual_musd, 1)}M USD (prom. 30d ${fmtNum(detalle.promedio_referencia_30d_musd, 1)}M)`
+      return `${detalle.flujo_actual_musd >= 0 ? '+' : ''}${fmtNum(detalle.flujo_actual_musd, 1)}M USD el ${detalle.fecha_flujo?.slice(0, 10)}`
     case 'tasas_fed':
       return `${fmtNum(detalle.tasa_actual, 2)}% (${detalle.ultimo_cambio_pct >= 0 ? '+' : ''}${fmtNum(detalle.ultimo_cambio_pct, 2)}% el ${detalle.fecha_ultimo_cambio?.slice(0, 10)})`
     case 'dxy':
@@ -96,10 +113,13 @@ export function detalleResumen(senal, detalle) {
   }
 }
 
-// Vigencia de la señal de Tasas Fed: 100% el día del cambio, decae linealmente
-// hasta 0% en 90 días (supuesto razonable, ~2 ciclos de reuniones FOMC — ajustable)
-export function vigenciaFed(fechaCambio) {
-  if (!fechaCambio) return null
-  const dias = (Date.now() - new Date(fechaCambio).getTime()) / 86400000
-  return Math.max(0, Math.round(100 - (dias * 100) / 90))
+// Días transcurridos / promedio de referencia / % de recorrido — solo existen para
+// Ciclo Halving, se muestran al frente de ese item en Análisis fundamental.
+export function halvingResumenCorto(detalle) {
+  if (!detalle) return null
+  return {
+    dias: fmtNum(detalle.dias_transcurridos, 0),
+    diasPromedio: fmtNum(detalle.dias_promedio_referencia, 0),
+    pctRecorrido: fmtPct(detalle.pct_recorrido_capado),
+  }
 }

@@ -28,7 +28,7 @@ export default function TradingViewChart({ symbol }) {
 
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-      <div ref={container} style={{ height: 380, width: '100%' }} />
+      <div ref={container} style={{ height: 520, width: '100%' }} />
     </div>
   )
 }

@@ -14,18 +14,20 @@ import {
   fmtPct,
   fmtNum,
   DETALLE_LABELS,
+  DETALLE_HIDDEN_KEYS,
   detalleResumen,
-  vigenciaFed,
+  estado2DimColor,
+  halvingResumenCorto,
 } from '../utils'
 
+// Cada columna técnica lleva su temporalidad de Nivel 2 hermana, para mostrar el Estado
+// justo debajo de esa misma columna dentro del mismo recuadro.
 const TECH_COLUMNS = [
-  { vista: '15m_puro', label: '15m', peso: '40%' },
-  { vista: '4h_puro', label: '4H', peso: '60%' },
-  { vista: '1d_puro', label: '1D', peso: '40%' },
-  { vista: '1w_puro', label: 'S', peso: '60%' },
+  { vista: '15m_puro', tf2: '15m', label: '15m', peso: '40%', grupo: 'Intraday' },
+  { vista: '4h_puro', tf2: '4h', label: '4H', peso: '60%', grupo: 'Intraday' },
+  { vista: '1d_puro', tf2: '1d', label: '1D', peso: '40%', grupo: 'Inversión' },
+  { vista: '1w_puro', tf2: '1w', label: 'S', peso: '60%', grupo: 'Inversión' },
 ]
-
-const NIVEL2_TF = ['15m', '4h', '1d', '1w']
 
 // Color del Estado 1 según su contenido: subida = alcista, caída = bajista, transición = neutral
 function estado1Color(texto) {
@@ -65,7 +67,7 @@ export default function Analysis() {
       const [{ data: prices }, n1, n2, n3, m3] = await Promise.all([
         supabase.from('prices_ohlcv').select('close, ts').eq('asset', asset).eq('timeframe', '1d').order('ts', { ascending: false }).limit(2),
         fetchLatestPerKey('nivel1_snapshots', asset, 'vista', TECH_COLUMNS.map((c) => c.vista)),
-        fetchLatestPerKey('nivel2_estados', asset, 'timeframe', NIVEL2_TF),
+        fetchLatestPerKey('nivel2_estados', asset, 'timeframe', TECH_COLUMNS.map((c) => c.tf2)),
         fetchLatestPerKey('nivel3_senales', asset, 'senal', senales),
         fetchLatestPerKey('motor3_resultados', asset, 'timeframe', ['4h', '1d']),
       ])
@@ -184,70 +186,65 @@ export default function Analysis() {
                     </div>
                   )
                 })}
-              </div>
-            )}
-          </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
-            <div className="card">
-              <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 10 }}>Estructura de mercado</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {NIVEL2_TF.map((tf) => {
-                  const row = nivel2.find((r) => r.timeframe === tf)
+                {/* Estado de Nivel 2 (Estructura de mercado), unificado debajo de cada columna */}
+                <div style={{ color: 'var(--text-primary)', fontSize: 11, fontWeight: 500, alignSelf: 'start', paddingTop: 10, borderTop: '0.5px solid var(--border)' }}>Estado</div>
+                {TECH_COLUMNS.map((c) => {
+                  const row = nivel2.find((r) => r.timeframe === c.tf2)
                   return (
-                    <div key={tf} style={{ borderBottom: '0.5px solid var(--border)', paddingBottom: 8 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{TIMEFRAME_LABELS[tf]}</span>
-                        {row && (
-                          <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>
-                            En curso <b style={{ color: 'var(--text-primary)' }}>{fmtNum(row.horas_en_estado_actual, 0)}h</b>
-                            {' · '}Prom <b style={{ color: 'var(--text-primary)' }}>{fmtNum(row.promedio_historico_horas, 0)}h</b>
-                          </span>
-                        )}
-                      </div>
+                    <div key={c.vista + 'estado'} style={{ textAlign: 'center', paddingTop: 10, borderTop: '0.5px solid var(--border)', fontSize: 11, lineHeight: 1.4 }}>
                       {row ? (
                         <>
-                          <div style={{ fontSize: 12, marginTop: 3, color: estado1Color(row.estado1), fontWeight: 500 }}>{row.estado1}</div>
-                          {row.estado2 && <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{row.estado2}</div>}
-                          {row.estado3 && <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{row.estado3}</div>}
+                          <div style={{ color: estado1Color(row.estado1), fontWeight: 500 }}>{row.estado1}</div>
+                          {row.estado2 && <div style={{ color: estado2DimColor(row.estado2), marginTop: 3 }}>{row.estado2}</div>}
+                          {row.estado3 && <div style={{ color: 'var(--text-secondary)', marginTop: 3 }}>{row.estado3}</div>}
+                          <div style={{ color: 'var(--text-muted)', fontSize: 10, marginTop: 4 }}>
+                            {fmtNum(row.horas_en_estado_actual, 0)}h · prom {fmtNum(row.promedio_historico_horas, 0)}h
+                          </div>
                         </>
                       ) : (
-                        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 3 }}>Sin datos aún.</div>
+                        <span style={{ color: 'var(--text-muted)' }}>—</span>
                       )}
                     </div>
                   )
                 })}
               </div>
-            </div>
+            )}
+          </div>
 
-            <div className="card">
-              <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 10 }}>Análisis fundamental</div>
-              {nivel3.map((row) => {
-                const vigencia = row.senal === 'tasas_fed' ? vigenciaFed(row.detalle?.fecha_ultimo_cambio) : null
+          <div className="card" style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 10 }}>Análisis fundamental</div>
+            {[...nivel3]
+              .sort((a, b) => (b.peso ?? 0) - (a.peso ?? 0) || (a.senal === 'tasas_fed' ? -1 : b.senal === 'tasas_fed' ? 1 : 0))
+              .map((row) => {
+                const halvingInfo = row.senal === 'ciclo_halving' ? halvingResumenCorto(row.detalle) : null
                 return (
-                  <div key={row.senal} onClick={() => setModal(row)} style={{ cursor: 'pointer', borderBottom: '0.5px solid var(--border)', padding: '9px 0' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <div key={row.senal} onClick={() => setModal(row)} style={{ cursor: 'pointer', borderBottom: '0.5px solid var(--border)', padding: '10px 0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: halvingInfo ? 6 : 3 }}>
                       <span style={{ fontSize: 12 }}>
                         {SENAL_LABELS[row.senal]} <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>{fmtPct(row.peso)}</span>
                       </span>
                       <Icon name="chevron-right" size={12} color="var(--text-muted)" />
                     </div>
-                    <div style={{ fontSize: 14, fontWeight: 500, color: textColor(row.direction), marginTop: 3 }}>
-                      {detalleResumen(row.senal, row.detalle) || `${directionLabel(row.direction)} ${fmtPct(row.fuerza)}`}
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
-                      <span className={badgeClass(row.direction)} style={{ fontSize: 10 }}>
-                        {directionLabel(row.direction)} {fmtPct(row.fuerza)}
-                      </span>
-                      {vigencia !== null && (
-                        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>Vigencia {vigencia}%</span>
-                      )}
-                    </div>
+                    {halvingInfo && (
+                      <div style={{ display: 'flex', gap: 16, fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                        <span>Días transcurridos <b style={{ color: 'var(--text-primary)' }}>{halvingInfo.dias}</b></span>
+                        <span>Promedio <b style={{ color: 'var(--text-primary)' }}>{halvingInfo.diasPromedio}</b></span>
+                        <span>Recorrido <b style={{ color: 'var(--text-primary)' }}>{halvingInfo.pctRecorrido}</b></span>
+                      </div>
+                    )}
+                    {!halvingInfo && (
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
+                        {detalleResumen(row.senal, row.detalle)}
+                      </div>
+                    )}
+                    <span className={badgeClass(row.direction)} style={{ fontSize: 11 }}>
+                      {directionLabel(row.direction)} {fmtPct(row.fuerza)}
+                    </span>
                   </div>
                 )
               })}
-              {nivel3.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Sin datos aún.</div>}
-            </div>
+            {nivel3.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Sin datos aún.</div>}
           </div>
 
           <div className="card">
@@ -311,7 +308,7 @@ export default function Analysis() {
             {modal.detalle ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
                 {Object.entries(modal.detalle)
-                  .filter(([k]) => k !== 'nota')
+                  .filter(([k]) => k !== 'nota' && !DETALLE_HIDDEN_KEYS.includes(k))
                   .map(([k, v]) => (
                     <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, gap: 10 }}>
                       <span style={{ color: 'var(--text-secondary)' }}>{DETALLE_LABELS[k] || k}</span>
@@ -320,8 +317,35 @@ export default function Analysis() {
                       </span>
                     </div>
                   ))}
+
+                {/* Flujos ETF: escala de los 10 valores extremos históricos, de mayor a menor,
+                    del mismo lado (entrada o salida) que la dirección del día actual. */}
+                {modal.senal === 'flujos_etf' && Array.isArray(modal.detalle.top10_referencia_musd) && (
+                  <div style={{ marginTop: 4 }}>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                      Top 10 histórico de {modal.direction === 'bajista' ? 'salidas' : 'entradas'} (M USD)
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      {modal.detalle.top10_referencia_musd.map((v, i) => (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+                          <span style={{ color: 'var(--text-muted)' }}>#{i + 1}</span>
+                          <span style={{ color: 'var(--text-primary)' }}>{fmtNum(v, 1)}M</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {modal.detalle.nota && (
                   <div style={{ fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic', marginTop: 6, lineHeight: 1.5 }}>{modal.detalle.nota}</div>
+                )}
+
+                {/* Metodología: siempre al final, en su propio cuadro separado */}
+                {modal.detalle.metodologia && (
+                  <div style={{ marginTop: 8, padding: 10, borderRadius: 12, background: 'var(--bg-card-2)' }}>
+                    <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Metodología</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{modal.detalle.metodologia}</div>
+                  </div>
                 )}
               </div>
             ) : (
