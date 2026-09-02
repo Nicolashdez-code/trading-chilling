@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAsset } from '../context/AssetContext'
+import { useIsMobile } from '../hooks'
 import AssetSelector from '../components/AssetSelector'
 import TradingViewChart from '../components/TradingViewChart'
+import TechGroup from '../components/TechGroup'
 import Icon from '../components/Icon'
 import {
   SENAL_LABELS,
@@ -16,7 +18,6 @@ import {
   DETALLE_LABELS,
   DETALLE_HIDDEN_KEYS,
   detalleResumen,
-  estado2DimColor,
   halvingResumenCorto,
 } from '../utils'
 
@@ -29,14 +30,6 @@ const TECH_COLUMNS = [
   { vista: '1w_puro', tf2: '1w', label: 'S', peso: '60%', grupo: 'Inversión' },
 ]
 
-// Color del Estado 1 según su contenido: subida = alcista, caída = bajista, transición = neutral
-function estado1Color(texto) {
-  if (!texto) return 'var(--text-secondary)'
-  if (texto.toLowerCase().includes('subida')) return 'var(--alcista)'
-  if (texto.toLowerCase().includes('caída') || texto.toLowerCase().includes('caida')) return 'var(--bajista)'
-  return 'var(--neutral)'
-}
-
 async function fetchLatestPerKey(table, asset, keyCol, keyValues) {
   const results = await Promise.all(
     keyValues.map((k) =>
@@ -48,6 +41,7 @@ async function fetchLatestPerKey(table, asset, keyCol, keyValues) {
 
 export default function Analysis() {
   const { asset } = useAsset()
+  const isMobile = useIsMobile()
   const [price, setPrice] = useState(null)
   const [prevClose, setPrevClose] = useState(null)
   const [nivel1, setNivel1] = useState([])
@@ -132,83 +126,14 @@ export default function Analysis() {
             <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 12 }}>Análisis técnico</div>
             {nivel1.length === 0 ? (
               <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Aún sin snapshots para este activo.</div>
+            ) : isMobile ? (
+              <>
+                <TechGroup title="Intraday" cols={TECH_COLUMNS.filter((c) => c.grupo === 'Intraday')} nivel1={nivel1} nivel2={nivel2} />
+                <div style={{ height: 20 }} />
+                <TechGroup title="Inversión" cols={TECH_COLUMNS.filter((c) => c.grupo === 'Inversión')} nivel1={nivel1} nivel2={nivel2} />
+              </>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '100px repeat(4,1fr)', gap: '5px 8px' }}>
-                <div />
-                <div style={{ gridColumn: '2 / 4', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 10, textTransform: 'uppercase' }}>Intraday</div>
-                <div style={{ gridColumn: '4 / 6', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 10, textTransform: 'uppercase' }}>Inversión</div>
-                <div />
-                {TECH_COLUMNS.map((c) => (
-                  <div key={c.vista} style={{ textAlign: 'center', fontSize: 11 }}>
-                    {c.label}
-                    <br />
-                    <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>{c.peso}</span>
-                  </div>
-                ))}
-                {[
-                  { key: 'hull', label: 'Hull trend' },
-                  { key: 'squeeze', label: 'Squeeze mom.' },
-                  { key: 'ema', label: 'EMA 20/55' },
-                  { key: 'adx', label: 'ADX/DMI' },
-                ].map((f) => (
-                  <>
-                    <div key={f.key} style={{ color: 'var(--text-secondary)', fontSize: 11, alignSelf: 'center' }}>{f.label}</div>
-                    {TECH_COLUMNS.map((c) => {
-                      const row = nivel1.find((r) => r.vista === c.vista)
-                      const dir = row?.[`${f.key}_direction`]
-                      const fuerza = row?.[`${f.key}_fuerza`]
-                      return (
-                        <div key={c.vista + f.key} style={{ textAlign: 'center', fontSize: 11, color: dir ? textColor(dir) : 'var(--text-muted)' }}>
-                          {dir ? (
-                            <>
-                              {directionLabel(dir).slice(0, 3)} <span style={{ color: 'var(--text-muted)' }}>{fmtPct(fuerza)}</span>
-                            </>
-                          ) : (
-                            '—'
-                          )}
-                        </div>
-                      )
-                    })}
-                  </>
-                ))}
-                <div style={{ color: 'var(--text-primary)', fontSize: 11, fontWeight: 500, alignSelf: 'center', paddingTop: 8, borderTop: '0.5px solid var(--border)' }}>Señal</div>
-                {TECH_COLUMNS.map((c) => {
-                  const row = nivel1.find((r) => r.vista === c.vista)
-                  return (
-                    <div key={c.vista + 'signal'} style={{ textAlign: 'center', paddingTop: 8, borderTop: '0.5px solid var(--border)' }}>
-                      {row ? (
-                        <span className={badgeClass(row.score_direction)} style={{ fontSize: 10, padding: '3px 8px' }}>
-                          {directionLabel(row.score_direction)} {fmtPct(row.score_fuerza)}
-                        </span>
-                      ) : (
-                        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>—</span>
-                      )}
-                    </div>
-                  )
-                })}
-
-                {/* Estado de Nivel 2 (Estructura de mercado), unificado debajo de cada columna */}
-                <div style={{ color: 'var(--text-primary)', fontSize: 11, fontWeight: 500, alignSelf: 'start', paddingTop: 10, borderTop: '0.5px solid var(--border)' }}>Estado</div>
-                {TECH_COLUMNS.map((c) => {
-                  const row = nivel2.find((r) => r.timeframe === c.tf2)
-                  return (
-                    <div key={c.vista + 'estado'} style={{ textAlign: 'center', paddingTop: 10, borderTop: '0.5px solid var(--border)', fontSize: 11, lineHeight: 1.4 }}>
-                      {row ? (
-                        <>
-                          <div style={{ color: estado1Color(row.estado1), fontWeight: 500 }}>{row.estado1}</div>
-                          {row.estado2 && <div style={{ color: estado2DimColor(row.estado2), marginTop: 3 }}>{row.estado2}</div>}
-                          {row.estado3 && <div style={{ color: 'var(--text-secondary)', marginTop: 3 }}>{row.estado3}</div>}
-                          <div style={{ color: 'var(--text-muted)', fontSize: 10, marginTop: 4 }}>
-                            {fmtNum(row.horas_en_estado_actual, 0)}h · prom {fmtNum(row.promedio_historico_horas, 0)}h
-                          </div>
-                        </>
-                      ) : (
-                        <span style={{ color: 'var(--text-muted)' }}>—</span>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
+              <TechGroup cols={TECH_COLUMNS} nivel1={nivel1} nivel2={nivel2} showGroupHeaders />
             )}
           </div>
 
@@ -249,7 +174,7 @@ export default function Analysis() {
 
           <div className="card">
             <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 12 }}>Resultado final · Motor 3</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div className="motor3-grid">
               {[
                 { tf: '4h', label: '4H · swing / intradía', row: motor4h },
                 { tf: '1d', label: '1D · inversión', row: motor1d },

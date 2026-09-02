@@ -136,3 +136,15 @@ a { color: inherit; }
   padding: 9px 10px;
   font-size: 13px;
 }
+
+.motor3-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .motor3-grid {
+    grid-template-columns: 1fr;
+  }
+}

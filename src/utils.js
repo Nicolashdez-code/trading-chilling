@@ -44,6 +44,14 @@ export function textColor(d) {
   return 'var(--neutral)'
 }
 
+// Color del Estado 1 (Nivel 2) según su contenido: subida = alcista, caída = bajista, transición = neutral
+export function estado1Color(texto) {
+  if (!texto) return 'var(--text-secondary)'
+  if (texto.toLowerCase().includes('subida')) return 'var(--alcista)'
+  if (texto.toLowerCase().includes('caída') || texto.toLowerCase().includes('caida')) return 'var(--bajista)'
+  return 'var(--neutral)'
+}
+
 // Color tenue (65% opacidad) para las notas de Estado 2 de Nivel 2 — mismo semáforo
 // que la dirección principal, pero sin la misma fuerza visual porque es solo informativo.
 export function estado2DimColor(texto) {
