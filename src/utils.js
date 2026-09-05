@@ -89,6 +89,8 @@ export const DETALLE_LABELS = {
   ultimo_minimo_ciclo_precio: 'Precio del último mínimo de ciclo',
   flujo_actual_musd: 'Flujo de hoy',
   fecha_flujo: 'Fecha del dato',
+  rango_historico: 'Puesto en el ranking histórico',
+  total_dias_historicos: 'Total de días en el ranking',
   tasa_actual: 'Tasa actual',
   ultimo_cambio_pct: 'Último cambio',
   fecha_ultimo_cambio: 'Fecha del último cambio',
@@ -105,7 +107,7 @@ export const DETALLE_LABELS = {
 
 // Llaves del jsonb "detalle" que no se listan como fila genérica en el modal porque
 // tienen su propio bloque visual (metodología al final, top-10 de flujos ETF, etc.)
-export const DETALLE_HIDDEN_KEYS = ['metodologia', 'top10_referencia_musd', 'vix_rampa_min', 'vix_rampa_max', 'direccion_fuente', 'velas_racha', 'velas_para_piso']
+export const DETALLE_HIDDEN_KEYS = ['metodologia', 'top10_referencia_musd', 'rango_historico', 'total_dias_historicos', 'vix_rampa_min', 'vix_rampa_max', 'direccion_fuente', 'velas_racha', 'velas_para_piso']
 
 // Línea corta con el dato real (no solo dirección/fuerza) para mostrar bajo cada señal
 export function detalleResumen(senal, detalle) {
@@ -142,7 +144,9 @@ export function featuredResumen(senal, detalle, asset) {
       const entra = detalle.flujo_actual_musd >= 0
       return {
         valor: `${fmtNum(Math.abs(detalle.flujo_actual_musd), 1)}M ${entra ? 'entrando a' : 'saliendo de'} ${asset}`,
-        secundario: `vs. puestos históricos de ${entra ? 'entradas' : 'salidas'} (1 a 90)`,
+        secundario: detalle.rango_historico
+          ? `puesto ${detalle.rango_historico} de ${detalle.total_dias_historicos} días de ${entra ? 'entrada' : 'salida'}`
+          : `sin ranking (flujo neutro)`,
       }
     }
     case 'tasas_fed': {

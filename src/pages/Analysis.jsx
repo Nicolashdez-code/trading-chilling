@@ -238,20 +238,22 @@ export default function Analysis() {
                     </div>
                   ))}
 
-                {/* Flujos ETF: umbrales por posición en el ranking histórico completo
-                    (puestos 1, 10, 20...90), del mismo lado que la dirección del día actual. */}
-                {modal.senal === 'flujos_etf' && Array.isArray(modal.detalle.top10_referencia_musd) && (
+                {/* Flujos ETF: posición exacta dentro del ranking histórico completo. */}
+                {modal.senal === 'flujos_etf' && modal.detalle.rango_historico && (
                   <div style={{ marginTop: 4 }}>
                     <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6 }}>
-                      Umbrales por posición histórica de {modal.direction === 'bajista' ? 'salidas' : 'entradas'} (M USD)
+                      Puesto {modal.detalle.rango_historico} de {modal.detalle.total_dias_historicos} días de {modal.direction === 'bajista' ? 'salida' : 'entrada'}
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                      {modal.detalle.top10_referencia_musd.map((v, i) => (
-                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                          <span style={{ color: 'var(--text-muted)' }}>Puesto {i === 0 ? 1 : i * 10}</span>
-                          <span style={{ color: 'var(--text-primary)' }}>{fmtNum(v, 1)}M</span>
-                        </div>
-                      ))}
+                    <div style={{ position: 'relative', height: 8, borderRadius: 4, background: 'var(--bg-card-2)' }}>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          width: `${Math.max(2, 100 - ((modal.detalle.rango_historico - 1) / modal.detalle.total_dias_historicos) * 100)}%`,
+                          background: 'var(--accent)',
+                          borderRadius: 4,
+                        }}
+                      />
                     </div>
                   </div>
                 )}
