@@ -32,6 +32,11 @@ Genera la carpeta `dist/`, lista para desplegar en Netlify (ver `netlify.toml`).
 - `src/context/` — sesión de Supabase Auth y activo seleccionado (persistido en
   `localStorage`).
 
+## Historial de sesiones
+- [2026-09-05](docs/actualizaciones_2026-09-05.md) — rediseño de VIX, DXY y Flujos ETF
+  (Nivel 3), corrección de bugs de datos por temporalidad, ajustes de interfaz móvil y
+  escritorio.
+
 ## Pendiente / próximos pasos
 - Conectar Netlify a este repositorio para despliegue automático en cada push.
 - Notificaciones push reales (por ahora las preferencias solo se guardan localmente, sin
