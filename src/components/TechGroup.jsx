@@ -122,8 +122,15 @@ export default function TechGroup({ cols, nivel1, nivel2, title, showGroupHeader
                 <div style={{ color: estado1Color(row.estado1), fontWeight: 500 }}>{row.estado1}</div>
                 {row.estado2 && <div style={{ color: estado2DimColor(row.estado2), marginTop: 3 }}>{row.estado2}</div>}
                 {row.estado3 && <div style={{ color: 'var(--text-secondary)', marginTop: 3 }}>{row.estado3}</div>}
-                <div style={{ color: 'var(--text-muted)', fontSize: 10, marginTop: 4 }}>
-                  {fmtNum(row.horas_en_estado_actual, 0)}h · prom {fmtNum(row.promedio_historico_horas, 0)}h
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 14, marginTop: 8, paddingTop: 8, borderTop: '0.5px solid var(--border)' }}>
+                  <div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>{fmtNum(row.horas_en_estado_actual, 0)}h</div>
+                    <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase' }}>En curso</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-secondary)' }}>{fmtNum(row.promedio_historico_horas, 0)}h</div>
+                    <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Promedio</div>
+                  </div>
                 </div>
               </>
             ) : (
