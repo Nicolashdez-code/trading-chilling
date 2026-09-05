@@ -75,6 +75,23 @@ Decisión tomada:
 Pesos de Nivel 3 actualizados para US100: Tasas Fed 50%, VIX 40%, DXY 10% (suma 100%,
 verificado).
 
+### DXY — tolerancia de 8 velas para romper la racha (2026-09-05, ajuste posterior)
+
+Se detectó (revisando un caso real) que una sola vela aislada de ruido — un roce mínimo
+contra la MA55, de apenas centésimas de punto — reseteaba toda la racha acumulada, aunque
+la tendencia de fondo seguía intacta antes y después de esa vela. Ejemplo real: una vela a
+las 12:15 UTC cerró 0.012 puntos por debajo de la MA55, rodeada de decenas de velas por
+encima — la racha reportada era de solo 34 velas cuando el recorrido real era mucho mayor.
+
+**Ajuste:** ahora se necesitan **8 velas seguidas en contra** (el mismo umbral que arma la
+racha) para voltearla — no 1 sola. Esto ya no se puede calcular con una consulta SQL de
+islas y huecos (sin memoria); se reescribió como un recorrido secuencial de las velas en
+orden cronológico, llevando el estado de la racha confirmada (`fn_calc_dxy_racha()`).
+
+Verificado: con el mismo momento del ejemplo anterior, la racha pasó de 34 a **75 velas**
+(fuerza 89.46% en vez de 95.91%) al tolerar esa vela de ruido y seguir contando hacia
+atrás la tendencia real.
+
 ## 3. Flujos ETF — escala de sensibilidad ampliada + corrección de bug (Nivel 3)
 
 **Antes (versión 1 de esta sesión):** comparación contra el top-10 absoluto histórico —
