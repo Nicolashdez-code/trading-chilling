@@ -130,33 +130,38 @@ export function detalleResumen(senal, detalle) {
 
 // El "número protagonista" de cada señal fundamental — se muestra grande, al frente,
 // coloreado según la dirección. Devuelve { valor, secundario } o null si no aplica.
-export function featuredResumen(senal, detalle) {
+export function featuredResumen(senal, detalle, asset) {
   if (!detalle) return null
   switch (senal) {
     case 'ciclo_halving':
       return {
-        valor: fmtPct(detalle.pct_recorrido_capado),
+        valor: `${fmtPct(detalle.pct_recorrido_capado)} del recorrido`,
         secundario: `${fmtNum(detalle.dias_transcurridos, 0)}d transcurridos · prom. ${fmtNum(detalle.dias_promedio_referencia, 0)}d`,
       }
-    case 'flujos_etf':
+    case 'flujos_etf': {
+      const entra = detalle.flujo_actual_musd >= 0
       return {
-        valor: `${detalle.flujo_actual_musd >= 0 ? '+' : ''}${fmtNum(detalle.flujo_actual_musd, 1)}M`,
+        valor: `${fmtNum(Math.abs(detalle.flujo_actual_musd), 1)}M ${entra ? 'entrando a' : 'saliendo de'} ${asset}`,
         secundario: `prom. 30d: ${fmtNum(detalle.promedio_referencia_30d_musd, 1)}M USD`,
       }
-    case 'tasas_fed':
+    }
+    case 'tasas_fed': {
+      const recorte = detalle.ultimo_cambio_pct < 0
+      const subida = detalle.ultimo_cambio_pct > 0
       return {
-        valor: `${detalle.ultimo_cambio_pct >= 0 ? '+' : ''}${fmtNum(detalle.ultimo_cambio_pct, 2)}%`,
+        valor: `${detalle.ultimo_cambio_pct >= 0 ? '+' : ''}${fmtNum(detalle.ultimo_cambio_pct, 2)}% ${recorte ? 'en reducción de tasas' : subida ? 'en subida de tasas' : 'sin cambio'}`,
         secundario: `tasa actual ${fmtNum(detalle.tasa_actual, 2)}% · ${detalle.fecha_ultimo_cambio?.slice(0, 10)}`,
       }
+    }
     case 'dxy':
       return {
-        valor: detalle.velas_racha ? String(detalle.velas_racha) : '—',
+        valor: detalle.velas_racha ? `${detalle.velas_racha} velas consecutivas` : '—',
         secundario: detalle.velas_racha ? `de 620 velas · MA55 ${fmtNum(detalle.ma55_15m, 3)}` : 'esperando 8 velas para confirmar',
       }
     case 'vix':
       return {
         valor: fmtNum(detalle.vix_actual, 2),
-        secundario: 'dirección tomada del técnico 4H',
+        secundario: 'Estado actual de volatilidad del mercado',
       }
     default:
       return null
