@@ -284,7 +284,7 @@ export default function Analysis() {
                       </div>
                     )}
                     <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                      Se activa a partir de 8 velas de 15min consecutivas cerrando del mismo lado de la MA55. La fuerza empieza en 100% y baja hasta un piso de 10% en la vela {modal.detalle.velas_para_piso}.
+                      Se activa a partir de 8 velas de 15min consecutivas cerrando del mismo lado de la MA55. Una vez confirmada, se necesitan 8 velas seguidas en contra para voltearla — una vela aislada de ruido no rompe la racha. La fuerza empieza en 100% y baja hasta un piso de 10% en la vela {modal.detalle.velas_para_piso}.
                     </div>
                   </div>
                 )}
