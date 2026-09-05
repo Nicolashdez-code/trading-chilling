@@ -261,6 +261,37 @@ export default function Analysis() {
                   </div>
                 )}
 
+                {/* DXY: racha de velas de 15min vs su MA55, con barra de progreso hacia el piso de 620 */}
+                {modal.senal === 'dxy' && modal.detalle.velas_racha !== undefined && (
+                  <div style={{ marginTop: 4 }}>
+                    {modal.detalle.velas_racha > 0 ? (
+                      <>
+                        <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                          Racha activa: {modal.detalle.velas_racha} de 620 velas (10% mínimo)
+                        </div>
+                        <div style={{ position: 'relative', height: 8, borderRadius: 4, background: 'var(--bg-card-2)', marginBottom: 6 }}>
+                          <div
+                            style={{
+                              position: 'absolute',
+                              inset: 0,
+                              width: `${Math.min(100, (modal.detalle.velas_racha / 620) * 100)}%`,
+                              background: 'var(--accent)',
+                              borderRadius: 4,
+                            }}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>
+                        Aún no se completa una racha de 8 velas consecutivas — sin señal confirmada.
+                      </div>
+                    )}
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                      Se activa a partir de 8 velas de 15min consecutivas cerrando del mismo lado de la MA55. La fuerza empieza en 100% y baja hasta un piso de 10% en la vela 620.
+                    </div>
+                  </div>
+                )}
+
                 {/* VIX: barra visual de la rampa 12 -> 19 y de dónde viene la dirección */}
                 {modal.senal === 'vix' && modal.detalle.vix_rampa_min !== undefined && (
                   <div style={{ marginTop: 4 }}>

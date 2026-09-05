@@ -93,7 +93,10 @@ export const DETALLE_LABELS = {
   ultimo_cambio_pct: 'Último cambio',
   fecha_ultimo_cambio: 'Fecha del último cambio',
   dxy_actual: 'DXY actual',
-  pct_5d: 'Variación 5 días',
+  pct_5d: 'Variación 5 días (lógica anterior)',
+  ma55_15m: 'Media móvil 55 (15min)',
+  velas_racha: 'Velas de 15m en racha',
+  velas_para_piso: 'Velas para tocar el piso (10%)',
   vix_actual: 'VIX actual',
   vix_rampa_min: 'Rampa · sin volatilidad',
   vix_rampa_max: 'Rampa · volatilidad máxima',
@@ -102,7 +105,7 @@ export const DETALLE_LABELS = {
 
 // Llaves del jsonb "detalle" que no se listan como fila genérica en el modal porque
 // tienen su propio bloque visual (metodología al final, top-10 de flujos ETF, etc.)
-export const DETALLE_HIDDEN_KEYS = ['metodologia', 'top10_referencia_musd', 'vix_rampa_min', 'vix_rampa_max', 'direccion_fuente']
+export const DETALLE_HIDDEN_KEYS = ['metodologia', 'top10_referencia_musd', 'vix_rampa_min', 'vix_rampa_max', 'direccion_fuente', 'velas_racha', 'velas_para_piso']
 
 // Línea corta con el dato real (no solo dirección/fuerza) para mostrar bajo cada señal
 export function detalleResumen(senal, detalle) {
@@ -115,7 +118,9 @@ export function detalleResumen(senal, detalle) {
     case 'tasas_fed':
       return `${fmtNum(detalle.tasa_actual, 2)}% (${detalle.ultimo_cambio_pct >= 0 ? '+' : ''}${fmtNum(detalle.ultimo_cambio_pct, 2)}% el ${detalle.fecha_ultimo_cambio?.slice(0, 10)})`
     case 'dxy':
-      return `${fmtNum(detalle.dxy_actual, 2)} (${detalle.pct_5d >= 0 ? '+' : ''}${fmtNum(detalle.pct_5d, 2)}% en 5d)`
+      return detalle.velas_racha
+        ? `DXY ${fmtNum(detalle.dxy_actual, 3)} vs MA55 ${fmtNum(detalle.ma55_15m, 3)} · ${detalle.velas_racha} velas de 15m en racha`
+        : `DXY ${fmtNum(detalle.dxy_actual, 3)} · sin racha confirmada (esperando 8 velas)`
     case 'vix':
       return `VIX ${fmtNum(detalle.vix_actual, 2)} · rampa ${detalle.vix_rampa_min}→${detalle.vix_rampa_max} · dirección del técnico 4H`
     default:
