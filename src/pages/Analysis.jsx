@@ -17,8 +17,7 @@ import {
   fmtNum,
   DETALLE_LABELS,
   DETALLE_HIDDEN_KEYS,
-  detalleResumen,
-  halvingResumenCorto,
+  featuredResumen,
 } from '../utils'
 
 // Cada columna técnica lleva su temporalidad de Nivel 2 hermana, para mostrar el Estado
@@ -142,30 +141,26 @@ export default function Analysis() {
             {[...nivel3]
               .sort((a, b) => (b.peso ?? 0) - (a.peso ?? 0) || (a.senal === 'tasas_fed' ? -1 : b.senal === 'tasas_fed' ? 1 : 0))
               .map((row) => {
-                const halvingInfo = row.senal === 'ciclo_halving' ? halvingResumenCorto(row.detalle) : null
+                const featured = featuredResumen(row.senal, row.detalle)
                 return (
                   <div key={row.senal} onClick={() => setModal(row)} style={{ cursor: 'pointer', borderBottom: '0.5px solid var(--border)', padding: '10px 0' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: halvingInfo ? 6 : 3 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
                       <span style={{ fontSize: 12 }}>
                         {SENAL_LABELS[row.senal]} <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>{fmtPct(row.peso)}</span>
                       </span>
                       <Icon name="chevron-right" size={12} color="var(--text-muted)" />
                     </div>
-                    {halvingInfo && (
-                      <div style={{ display: 'flex', gap: 16, fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6 }}>
-                        <span>Días transcurridos <b style={{ color: 'var(--text-primary)' }}>{halvingInfo.dias}</b></span>
-                        <span>Promedio <b style={{ color: 'var(--text-primary)' }}>{halvingInfo.diasPromedio}</b></span>
-                        <span>Recorrido <b style={{ color: 'var(--text-primary)' }}>{halvingInfo.pctRecorrido}</b></span>
-                      </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 20, fontWeight: 500, color: textColor(row.direction) }}>
+                        {featured ? featured.valor : '—'}
+                      </span>
+                      <span className={badgeClass(row.direction)} style={{ fontSize: 11 }}>
+                        {directionLabel(row.direction)} {fmtPct(row.fuerza)}
+                      </span>
+                    </div>
+                    {featured?.secundario && (
+                      <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>{featured.secundario}</div>
                     )}
-                    {!halvingInfo && (
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
-                        {detalleResumen(row.senal, row.detalle)}
-                      </div>
-                    )}
-                    <span className={badgeClass(row.direction)} style={{ fontSize: 11 }}>
-                      {directionLabel(row.direction)} {fmtPct(row.fuerza)}
-                    </span>
                   </div>
                 )
               })}

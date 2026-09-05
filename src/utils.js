@@ -128,13 +128,37 @@ export function detalleResumen(senal, detalle) {
   }
 }
 
-// Días transcurridos / promedio de referencia / % de recorrido — solo existen para
-// Ciclo Halving, se muestran al frente de ese item en Análisis fundamental.
-export function halvingResumenCorto(detalle) {
+// El "número protagonista" de cada señal fundamental — se muestra grande, al frente,
+// coloreado según la dirección. Devuelve { valor, secundario } o null si no aplica.
+export function featuredResumen(senal, detalle) {
   if (!detalle) return null
-  return {
-    dias: fmtNum(detalle.dias_transcurridos, 0),
-    diasPromedio: fmtNum(detalle.dias_promedio_referencia, 0),
-    pctRecorrido: fmtPct(detalle.pct_recorrido_capado),
+  switch (senal) {
+    case 'ciclo_halving':
+      return {
+        valor: fmtPct(detalle.pct_recorrido_capado),
+        secundario: `${fmtNum(detalle.dias_transcurridos, 0)}d transcurridos · prom. ${fmtNum(detalle.dias_promedio_referencia, 0)}d`,
+      }
+    case 'flujos_etf':
+      return {
+        valor: `${detalle.flujo_actual_musd >= 0 ? '+' : ''}${fmtNum(detalle.flujo_actual_musd, 1)}M`,
+        secundario: `prom. 30d: ${fmtNum(detalle.promedio_referencia_30d_musd, 1)}M USD`,
+      }
+    case 'tasas_fed':
+      return {
+        valor: `${detalle.ultimo_cambio_pct >= 0 ? '+' : ''}${fmtNum(detalle.ultimo_cambio_pct, 2)}%`,
+        secundario: `tasa actual ${fmtNum(detalle.tasa_actual, 2)}% · ${detalle.fecha_ultimo_cambio?.slice(0, 10)}`,
+      }
+    case 'dxy':
+      return {
+        valor: detalle.velas_racha ? String(detalle.velas_racha) : '—',
+        secundario: detalle.velas_racha ? `de 620 velas · MA55 ${fmtNum(detalle.ma55_15m, 3)}` : 'esperando 8 velas para confirmar',
+      }
+    case 'vix':
+      return {
+        valor: fmtNum(detalle.vix_actual, 2),
+        secundario: 'dirección tomada del técnico 4H',
+      }
+    default:
+      return null
   }
 }
