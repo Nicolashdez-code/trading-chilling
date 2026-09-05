@@ -142,7 +142,7 @@ export function featuredResumen(senal, detalle, asset) {
       const entra = detalle.flujo_actual_musd >= 0
       return {
         valor: `${fmtNum(Math.abs(detalle.flujo_actual_musd), 1)}M ${entra ? 'entrando a' : 'saliendo de'} ${asset}`,
-        secundario: `prom. 30d: ${fmtNum(detalle.promedio_referencia_30d_musd, 1)}M USD`,
+        secundario: `vs. los 10 mayores ${entra ? 'entradas' : 'salidas'} históricas`,
       }
     }
     case 'tasas_fed': {
