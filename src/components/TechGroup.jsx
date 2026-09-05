@@ -110,32 +110,58 @@ export default function TechGroup({ cols, nivel1, nivel2, title, showGroupHeader
         )
       })}
 
-      <div style={{ color: 'var(--text-primary)', fontSize: 11, fontWeight: 500, alignSelf: 'start', paddingTop: 10, borderTop: '0.5px solid var(--border)' }}>
+      <div style={{ color: 'var(--text-primary)', fontSize: 11, fontWeight: 500, alignSelf: 'center', paddingTop: 10, borderTop: '0.5px solid var(--border)' }}>
         Estado
       </div>
       {cols.map((c) => {
         const row = nivel2.find((r) => r.timeframe === c.tf2)
         return (
-          <div key={c.vista + 'estado'} style={{ textAlign: 'center', paddingTop: 10, borderTop: '0.5px solid var(--border)', fontSize: 11, lineHeight: 1.4 }}>
-            {row ? (
-              <>
-                <div style={{ color: estado1Color(row.estado1), fontWeight: 500 }}>{row.estado1}</div>
-                {row.estado2 && <div style={{ color: estado2DimColor(row.estado2), marginTop: 3 }}>{row.estado2}</div>}
-                {row.estado3 && <div style={{ color: 'var(--text-secondary)', marginTop: 3 }}>{row.estado3}</div>}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 14, marginTop: 8, paddingTop: 8, borderTop: '0.5px solid var(--border)' }}>
-                  <div>
-                    <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>{fmtNum(row.horas_en_estado_actual, 0)}h</div>
-                    <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase' }}>En curso</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-secondary)' }}>{fmtNum(row.promedio_historico_horas, 0)}h</div>
-                    <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Promedio</div>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <span style={{ color: 'var(--text-muted)' }}>—</span>
-            )}
+          <div key={c.vista + 'estado1'} style={{ textAlign: 'center', paddingTop: 10, borderTop: '0.5px solid var(--border)', fontSize: 11 }}>
+            {row ? <span style={{ color: estado1Color(row.estado1), fontWeight: 500 }}>{row.estado1}</span> : <span style={{ color: 'var(--text-muted)' }}>—</span>}
+          </div>
+        )
+      })}
+
+      <div />
+      {cols.map((c) => {
+        const row = nivel2.find((r) => r.timeframe === c.tf2)
+        return (
+          <div key={c.vista + 'estado2'} style={{ textAlign: 'center', fontSize: 11, paddingTop: 4 }}>
+            {row?.estado2 ? <span style={{ color: estado2DimColor(row.estado2) }}>{row.estado2}</span> : <span style={{ color: 'var(--text-muted)' }}>—</span>}
+          </div>
+        )
+      })}
+
+      <div />
+      {cols.map((c) => {
+        const row = nivel2.find((r) => r.timeframe === c.tf2)
+        return (
+          <div key={c.vista + 'estado3'} style={{ textAlign: 'center', fontSize: 11, paddingTop: 4 }}>
+            {row?.estado3 ? <span style={{ color: 'var(--text-secondary)' }}>{row.estado3}</span> : <span style={{ color: 'var(--text-muted)' }}>—</span>}
+          </div>
+        )
+      })}
+
+      <div style={{ color: 'var(--text-secondary)', fontSize: 10, textTransform: 'uppercase', alignSelf: 'end', paddingTop: 10, borderTop: '0.5px solid var(--border)' }}>
+        En curso
+      </div>
+      {cols.map((c) => {
+        const row = nivel2.find((r) => r.timeframe === c.tf2)
+        return (
+          <div key={c.vista + 'encurso'} style={{ textAlign: 'center', paddingTop: 10, borderTop: '0.5px solid var(--border)', fontSize: 17, fontWeight: 600, color: 'var(--text-primary)' }}>
+            {row ? `${fmtNum(row.horas_en_estado_actual, 0)}h` : '—'}
+          </div>
+        )
+      })}
+
+      <div style={{ color: 'var(--text-secondary)', fontSize: 10, textTransform: 'uppercase', alignSelf: 'center' }}>
+        Promedio
+      </div>
+      {cols.map((c) => {
+        const row = nivel2.find((r) => r.timeframe === c.tf2)
+        return (
+          <div key={c.vista + 'promedio'} style={{ textAlign: 'center', fontSize: 17, fontWeight: 600, color: 'var(--text-secondary)' }}>
+            {row ? `${fmtNum(row.promedio_historico_horas, 0)}h` : '—'}
           </div>
         )
       })}
