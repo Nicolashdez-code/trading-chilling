@@ -160,7 +160,7 @@ export function featuredResumen(senal, detalle, asset) {
     case 'dxy':
       return {
         valor: detalle.velas_racha ? `${detalle.velas_racha} velas consecutivas` : '—',
-        secundario: detalle.velas_racha ? `de 620 velas · MA55 ${fmtNum(detalle.ma55_15m, 3)}` : 'esperando 8 velas para confirmar',
+        secundario: detalle.velas_racha ? `de ${detalle.velas_para_piso} velas · MA55 ${fmtNum(detalle.ma55_15m, 3)}` : 'esperando 8 velas para confirmar',
       }
     case 'vix':
       return {

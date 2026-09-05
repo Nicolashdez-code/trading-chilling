@@ -258,20 +258,20 @@ export default function Analysis() {
                   </div>
                 )}
 
-                {/* DXY: racha de velas de 15min vs su MA55, con barra de progreso hacia el piso de 620 */}
+                {/* DXY: racha de velas de 15min vs su MA55, con barra de progreso hacia el piso */}
                 {modal.senal === 'dxy' && modal.detalle.velas_racha !== undefined && (
                   <div style={{ marginTop: 4 }}>
                     {modal.detalle.velas_racha > 0 ? (
                       <>
                         <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6 }}>
-                          Racha activa: {modal.detalle.velas_racha} de 620 velas (10% mínimo)
+                          Racha activa: {modal.detalle.velas_racha} de {modal.detalle.velas_para_piso} velas (10% mínimo)
                         </div>
                         <div style={{ position: 'relative', height: 8, borderRadius: 4, background: 'var(--bg-card-2)', marginBottom: 6 }}>
                           <div
                             style={{
                               position: 'absolute',
                               inset: 0,
-                              width: `${Math.min(100, (modal.detalle.velas_racha / 620) * 100)}%`,
+                              width: `${Math.min(100, (modal.detalle.velas_racha / modal.detalle.velas_para_piso) * 100)}%`,
                               background: 'var(--accent)',
                               borderRadius: 4,
                             }}
@@ -284,7 +284,7 @@ export default function Analysis() {
                       </div>
                     )}
                     <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                      Se activa a partir de 8 velas de 15min consecutivas cerrando del mismo lado de la MA55. La fuerza empieza en 100% y baja hasta un piso de 10% en la vela 620.
+                      Se activa a partir de 8 velas de 15min consecutivas cerrando del mismo lado de la MA55. La fuerza empieza en 100% y baja hasta un piso de 10% en la vela {modal.detalle.velas_para_piso}.
                     </div>
                   </div>
                 )}
