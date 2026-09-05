@@ -238,17 +238,17 @@ export default function Analysis() {
                     </div>
                   ))}
 
-                {/* Flujos ETF: escala de los 10 valores extremos históricos, de mayor a menor,
-                    del mismo lado (entrada o salida) que la dirección del día actual. */}
+                {/* Flujos ETF: umbrales por posición en el ranking histórico completo
+                    (puestos 1, 10, 20...90), del mismo lado que la dirección del día actual. */}
                 {modal.senal === 'flujos_etf' && Array.isArray(modal.detalle.top10_referencia_musd) && (
                   <div style={{ marginTop: 4 }}>
                     <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6 }}>
-                      Top 10 histórico de {modal.direction === 'bajista' ? 'salidas' : 'entradas'} (M USD)
+                      Umbrales por posición histórica de {modal.direction === 'bajista' ? 'salidas' : 'entradas'} (M USD)
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                       {modal.detalle.top10_referencia_musd.map((v, i) => (
                         <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                          <span style={{ color: 'var(--text-muted)' }}>#{i + 1}</span>
+                          <span style={{ color: 'var(--text-muted)' }}>Puesto {i === 0 ? 1 : i * 10}</span>
                           <span style={{ color: 'var(--text-primary)' }}>{fmtNum(v, 1)}M</span>
                         </div>
                       ))}
