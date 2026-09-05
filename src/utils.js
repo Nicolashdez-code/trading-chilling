@@ -95,12 +95,14 @@ export const DETALLE_LABELS = {
   dxy_actual: 'DXY actual',
   pct_5d: 'Variación 5 días',
   vix_actual: 'VIX actual',
-  percentil_historico: 'Percentil histórico',
+  vix_rampa_min: 'Rampa · sin volatilidad',
+  vix_rampa_max: 'Rampa · volatilidad máxima',
+  direccion_fuente: 'Dirección tomada de',
 }
 
 // Llaves del jsonb "detalle" que no se listan como fila genérica en el modal porque
 // tienen su propio bloque visual (metodología al final, top-10 de flujos ETF, etc.)
-export const DETALLE_HIDDEN_KEYS = ['metodologia', 'top10_referencia_musd']
+export const DETALLE_HIDDEN_KEYS = ['metodologia', 'top10_referencia_musd', 'vix_rampa_min', 'vix_rampa_max', 'direccion_fuente']
 
 // Línea corta con el dato real (no solo dirección/fuerza) para mostrar bajo cada señal
 export function detalleResumen(senal, detalle) {
@@ -115,7 +117,7 @@ export function detalleResumen(senal, detalle) {
     case 'dxy':
       return `${fmtNum(detalle.dxy_actual, 2)} (${detalle.pct_5d >= 0 ? '+' : ''}${fmtNum(detalle.pct_5d, 2)}% en 5d)`
     case 'vix':
-      return `${fmtNum(detalle.vix_actual, 2)} (percentil ${fmtNum(detalle.percentil_historico, 0)})`
+      return `VIX ${fmtNum(detalle.vix_actual, 2)} · rampa ${detalle.vix_rampa_min}→${detalle.vix_rampa_max} · dirección del técnico 4H`
     default:
       return null
   }

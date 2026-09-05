@@ -261,6 +261,29 @@ export default function Analysis() {
                   </div>
                 )}
 
+                {/* VIX: barra visual de la rampa 12 -> 19 y de dónde viene la dirección */}
+                {modal.senal === 'vix' && modal.detalle.vix_rampa_min !== undefined && (
+                  <div style={{ marginTop: 4 }}>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                      Rampa de volatilidad ({modal.detalle.vix_rampa_min} → {modal.detalle.vix_rampa_max})
+                    </div>
+                    <div style={{ position: 'relative', height: 8, borderRadius: 4, background: 'var(--bg-card-2)', marginBottom: 6 }}>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          width: `${fmtPct(modal.fuerza) === '—' ? 0 : Math.min(100, Math.max(0, Number(modal.fuerza)))}%`,
+                          background: 'var(--accent)',
+                          borderRadius: 4,
+                        }}
+                      />
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                      Dirección tomada del análisis técnico (Nivel 1 · 4H) de este mismo activo, no del propio VIX.
+                    </div>
+                  </div>
+                )}
+
                 {modal.detalle.nota && (
                   <div style={{ fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic', marginTop: 6, lineHeight: 1.5 }}>{modal.detalle.nota}</div>
                 )}
