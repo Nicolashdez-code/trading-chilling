@@ -55,6 +55,26 @@ del propio DXY.
 Verificado: racha de 34 velas → fuerza 95.91% (con el piso en 580), dirección Bajista
 coincidiendo con DXY por encima de su MA55.
 
+### DXY para US100 — correlación positiva (2026-09-05, ajuste posterior)
+
+Investigado y confirmado: la relación DXY-Nasdaq no es estructuralmente confiable como
+inversa simple — existe la **"teoría de la sonrisa del dólar"**, donde el dólar sube por
+dos razones opuestas (pánico/refugio vs. fortaleza económica de EE.UU.), y solo la
+primera coincide con Nasdaq cayendo. En la segunda (fortaleza económica), dólar y Nasdaq
+suben juntos.
+
+Decisión tomada:
+- **Peso del DXY en US100 reducido de 20% a 10%** (los 10 puntos liberados se repartieron
+  por igual: Tasas Fed 45%→50%, VIX 35%→40%).
+- **Dirección invertida solo para US100:** DXY por encima de su MA55 (dólar subiendo) =
+  **Alcista** para US100 (apostando al lado derecho de la sonrisa — fortaleza económica).
+  BTC y Oro mantienen la relación inversa de siempre (dólar sube = bajista).
+- Queda registrado en el propio dato (`detalle.correlacion`: `'positiva'` para US100,
+  `'inversa'` para BTC/Oro) para que quede trazable en el modal de la app.
+
+Pesos de Nivel 3 actualizados para US100: Tasas Fed 50%, VIX 40%, DXY 10% (suma 100%,
+verificado).
+
 ## 3. Flujos ETF — escala de sensibilidad ampliada + corrección de bug (Nivel 3)
 
 **Antes (versión 1 de esta sesión):** comparación contra el top-10 absoluto histórico —

@@ -99,6 +99,7 @@ export const DETALLE_LABELS = {
   ma55_15m: 'Media móvil 55 (15min)',
   velas_racha: 'Velas de 15m en racha',
   velas_para_piso: 'Velas para tocar el piso (10%)',
+  correlacion: 'Correlación con este activo',
   vix_actual: 'VIX actual',
   vix_rampa_min: 'Rampa · sin volatilidad',
   vix_rampa_max: 'Rampa · volatilidad máxima',
@@ -160,7 +161,9 @@ export function featuredResumen(senal, detalle, asset) {
     case 'dxy':
       return {
         valor: detalle.velas_racha ? `${detalle.velas_racha} velas consecutivas` : '—',
-        secundario: detalle.velas_racha ? `de ${detalle.velas_para_piso} velas · MA55 ${fmtNum(detalle.ma55_15m, 3)}` : 'esperando 8 velas para confirmar',
+        secundario: detalle.velas_racha
+          ? `de ${detalle.velas_para_piso} velas · MA55 ${fmtNum(detalle.ma55_15m, 3)}${detalle.correlacion === 'positiva' ? ' · correlación positiva' : ''}`
+          : 'esperando 8 velas para confirmar',
       }
     case 'vix':
       return {
