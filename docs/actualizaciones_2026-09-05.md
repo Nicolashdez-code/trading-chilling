@@ -200,6 +200,14 @@ DXY 15%→10% y Flujos ETF 20%→25% (se compensan exactamente, resto de señale
 cambios). Pesos actuales de BTC: Ciclo Halving 47%, Flujos ETF 25%, DXY 10%, Tasas Fed 9%,
 VIX 9% — suma 100%, verificado.
 
+**Regresión detectada y corregida el mismo día:** al reescribir `fn_calc_dxy_racha()` para
+aplicar el nuevo peso, se usó por error una copia anterior de la función como base,
+perdiendo sin querer la tolerancia de 8 velas para romper la racha (volvió a la regla de
+"1 vela rompe todo"). El usuario lo detectó al notar que el conteo de velas había bajado
+de forma inconsistente. Corregido reintegrando la lógica secuencial de estado (bootstrap +
+tolerancia de 8 velas en contra) manteniendo el peso nuevo. Verificado: la racha volvió a
+76 velas tras la corrección.
+
 ## 10. Qué sigue pendiente (no bloqueante)
 
 - Notificaciones push reales (el toggle en Ajustes hoy solo se guarda localmente).
