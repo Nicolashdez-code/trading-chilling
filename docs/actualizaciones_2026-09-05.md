@@ -194,7 +194,13 @@ prácticamente no tenía el problema.
 Este bug llevaba afectando Hull Trend y Squeeze Momentum en 15min desde el inicio del
 proyecto — quedó corregido de raíz, no solo parchado.
 
-## 8. Qué sigue pendiente (no bloqueante)
+## 9. Ajuste de pesos en BTC (2026-09-06)
+
+DXY 15%→10% y Flujos ETF 20%→25% (se compensan exactamente, resto de señales sin
+cambios). Pesos actuales de BTC: Ciclo Halving 47%, Flujos ETF 25%, DXY 10%, Tasas Fed 9%,
+VIX 9% — suma 100%, verificado.
+
+## 10. Qué sigue pendiente (no bloqueante)
 
 - Notificaciones push reales (el toggle en Ajustes hoy solo se guarda localmente).
 - Journal (Movimientos) y Fichas de inversión: funcionales, sin más ajustes solicitados
