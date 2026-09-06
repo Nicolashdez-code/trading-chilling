@@ -165,7 +165,36 @@ Neutral 10% (confirmado como dato real, no un vacío).
 - Supabase: todas las funciones y crons mencionados arriba ya están corriendo solos en
   producción — no requieren ninguna acción manual del usuario.
 
-## 6. Qué sigue pendiente (no bloqueante)
+## 7. Bug crítico corregido — velas de 15min "planas" contaminando Hull y Squeeze (2026-09-06)
+
+**Síntoma reportado por el usuario:** viendo la gráfica de TradingView, el Squeeze
+Momentum de BTC en 15min mostraba claramente el histograma descendiendo hacia territorio
+negativo (señal Bajista visual), pero la app mostraba Alcista.
+
+**Causa raíz encontrada:** `fn_upsert_ohlcv_raw()` usaba la marca de tiempo tal cual la
+entrega Yahoo Finance, sin redondearla al inicio real de cada vela de 15 minutos. Para
+activos que Yahoo reporta con el "último trade" en vez de una marca de tiempo fija
+(BTC, Oro, US100 — no le pasaba al DXY), cada consulta del cron (cada 5 min) generaba una
+**fila nueva "plana"** (open=high=low=close, sin rango real) en vez de actualizar la
+misma vela en formación. Verificado: **~38-40% de todas las filas de 15min** de BTC, Oro
+y US100 eran de este tipo (4,598 de 11,797 en BTC; similar en los otros dos). El 4H
+prácticamente no tenía el problema.
+
+**Corrección aplicada:**
+- `fn_upsert_ohlcv_raw()` ahora redondea la marca de tiempo hacia abajo al inicio real del
+  período (15min = múltiplos de 900 segundos) antes de guardar, y el `upsert` acumula
+  correctamente `high`/`low` con `greatest`/`least` en vez de sobrescribir — así los polls
+  repetidos de la misma vela en curso se combinan en una sola fila con rango real, en vez
+  de crear filas nuevas.
+- Se hizo limpieza retroactiva de las filas planas ya existentes en `prices_ohlcv` (15min,
+  BTC/Oro/US100).
+- Verificado: tras la limpieza, el recálculo de Squeeze Momentum en BTC 15m coincidió
+  exactamente con lo que mostraba TradingView (Bajista) en el mismo momento.
+
+Este bug llevaba afectando Hull Trend y Squeeze Momentum en 15min desde el inicio del
+proyecto — quedó corregido de raíz, no solo parchado.
+
+## 8. Qué sigue pendiente (no bloqueante)
 
 - Notificaciones push reales (el toggle en Ajustes hoy solo se guarda localmente).
 - Journal (Movimientos) y Fichas de inversión: funcionales, sin más ajustes solicitados
