@@ -18,6 +18,7 @@ import {
   DETALLE_LABELS,
   DETALLE_HIDDEN_KEYS,
   featuredResumen,
+  aportePuntos,
 } from '../utils'
 
 // Cada columna técnica lleva su temporalidad de Nivel 2 hermana, para mostrar el Estado
@@ -142,6 +143,7 @@ export default function Analysis() {
               .sort((a, b) => (b.peso ?? 0) - (a.peso ?? 0) || (a.senal === 'tasas_fed' ? -1 : b.senal === 'tasas_fed' ? 1 : 0))
               .map((row) => {
                 const featured = featuredResumen(row.senal, row.detalle, asset)
+                const aporte = aportePuntos(row.peso, row.fuerza, row.direction)
                 return (
                   <div key={row.senal} onClick={() => setModal(row)} style={{ cursor: 'pointer', borderBottom: '0.5px solid var(--border)', padding: '10px 0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
@@ -154,9 +156,17 @@ export default function Analysis() {
                       <span style={{ fontSize: 17, fontWeight: 500, color: textColor(row.direction), lineHeight: 1.3 }}>
                         {featured ? featured.valor : '—'}
                       </span>
-                      <span className={badgeClass(row.direction)} style={{ fontSize: 11, flexShrink: 0 }}>
-                        {directionLabel(row.direction)} {fmtPct(row.fuerza)}
-                      </span>
+                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <span className={badgeClass(row.direction)} style={{ fontSize: 11 }}>
+                          {directionLabel(row.direction)} {fmtPct(row.fuerza)}
+                        </span>
+                        {aporte !== null && (
+                          <div style={{ fontSize: 11, fontWeight: 600, color: textColor(row.direction), marginTop: 3 }}>
+                            {aporte >= 0 ? '+' : ''}
+                            {fmtNum(aporte, 1)} pts
+                          </div>
+                        )}
+                      </div>
                     </div>
                     {featured?.secundario && (
                       <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>{featured.secundario}</div>

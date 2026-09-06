@@ -72,6 +72,14 @@ export function fmtNum(n, decimals = 2) {
   return Number(n).toLocaleString('es-CO', { maximumFractionDigits: decimals })
 }
 
+// Aporte real de una señal al resultado combinado: peso × fuerza, con signo según
+// dirección (positivo si alcista, negativo si bajista, 0 si neutral).
+export function aportePuntos(peso, fuerza, direction) {
+  if (peso === null || peso === undefined || fuerza === null || fuerza === undefined) return null
+  const signo = direction === 'alcista' ? 1 : direction === 'bajista' ? -1 : 0
+  return signo * (Number(peso) / 100) * Number(fuerza)
+}
+
 // Etiquetas legibles para las llaves del jsonb "detalle" de nivel3_senales.
 // 'metodologia' y 'top10_referencia_musd' se excluyen a propósito de esta lista: se
 // muestran aparte con su propio tratamiento visual en el modal de detalle.
