@@ -226,7 +226,16 @@ tolerancia de 8 velas en contra) manteniendo el peso nuevo. Verificado: la racha
    histórico a "0h" siempre. Se borró el historial de 15min (los 3 activos) para que el
    promedio se reconstruya limpio desde ahora; 4H se dejó intacto (afectación mínima).
 
-## 12. Qué sigue pendiente (no bloqueante)
+## 13. Pesos de Oro y US100 ajustados (2026-09-06)
+
+- **Oro (XAU):** Tasas Fed 65% · DXY 20% · VIX 15% (antes 55/35/10)
+- **US100:** Tasas Fed 60% · VIX 35% · DXY 5% (antes 50/40/10)
+- BTC sin cambios (47/25/10/9/9).
+- Verificado con datos reales que ambas sumas dan 100%, y que la tolerancia de 8 velas del
+  DXY (punto 6) seguía intacta antes de aplicar el cambio — se revisó la función completa
+  primero para no repetir la regresión accidental documentada anteriormente.
+
+## 14. Qué sigue pendiente (no bloqueante)
 
 - Notificaciones push reales (el toggle en Ajustes hoy solo se guarda localmente).
 - Journal (Movimientos) y Fichas de inversión: funcionales, sin más ajustes solicitados
