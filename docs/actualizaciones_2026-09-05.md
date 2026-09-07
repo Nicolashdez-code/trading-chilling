@@ -1,6 +1,25 @@
-# Actualizaciones de sesión — 2026-09-05
+# Actualizaciones de sesión — 2026-09-05 (y continuaciones)
 
-Resumen de todo lo trabajado en esta sesión sobre NC Trader: rediseño completo de 3 señales
+## Estado actual (resumen rápido para retomar el proyecto)
+
+**Todo funcionando en producción, sin acciones pendientes del usuario.**
+
+- **App:** https://nc-trader.netlify.app (PWA, login con correo/contraseña vía Supabase Auth)
+- **Repo:** `github.com/Nicolashdez-code/trading-chilling`, rama `main`. Despliegue automático en Netlify con cada push (créditos de build limitados en el plan gratis — si Netlify avisa "sin créditos", los cambios de código siguen subiendo a GitHub sin problema, solo el sitio publicado no se actualiza hasta que se recarguen o se suba de plan).
+- **Supabase:** proyecto `Trading-app` (`spdigcvpvwmehqogufvt`). Todo el motor de señales (Nivel 1/2/3, Motor 3) corre solo vía `pg_cron` + `pg_net`, independiente de Netlify.
+- **Pesos actuales de Nivel 3 (fundamental):**
+  - BTC: Ciclo Halving 47% · Flujos ETF 25% · DXY 10% · Tasas Fed 9% · VIX 9%
+  - Oro (XAU): Tasas Fed 70% · VIX 17% · DXY 13%
+  - US100: Tasas Fed 60% · VIX 35% · DXY 5% (DXY con **correlación positiva** para este activo — ver punto 8)
+- **DXY:** ya no viene de Yahoo (tenía una falla persistente) — se calcula de forma **sintética** desde 6 pares de divisas vía Twelve Data, con la fórmula oficial del ICE. Ver punto 16 para el detalle completo.
+- **Credenciales activas:** API key de Twelve Data y de FRED guardadas en Supabase Vault (no en texto plano). Token de GitHub (personal access token) usado para hacer `git push` directo desde el entorno de trabajo — se comparte en el resumen de traspaso a otra conversación cuando hace falta.
+
+## Índice de secciones de este documento
+1. VIX — rediseño completo · 2. DXY — racha de velas vs MA55 · 3. Flujos ETF — escala de sensibilidad ampliada y luego por posición exacta · 4. Frontend — ajustes de interfaz · 5. Estado del despliegue · 6. Pendiente no bloqueante · 7. Bug de velas "planas" de 15min (Hull/Squeeze) · 8. DXY para US100 — correlación positiva · 9-15. Ajustes de pesos y tolerancias sucesivos · 16. DXY migrado a fuente sintética (Twelve Data) · 17. Pendiente no bloqueante (más reciente)
+
+---
+
+
 de Nivel 3 (VIX, DXY, Flujos ETF), corrección de bugs reales de datos, y ajustes de
 frontend (móvil, escritorio, íconos). **Todos los indicadores están verificados y
 funcionando correctamente con datos reales** al cierre de esta sesión.
