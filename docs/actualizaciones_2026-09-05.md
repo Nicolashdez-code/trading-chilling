@@ -208,7 +208,25 @@ de forma inconsistente. Corregido reintegrando la lógica secuencial de estado (
 tolerancia de 8 velas en contra) manteniendo el peso nuevo. Verificado: la racha volvió a
 76 velas tras la corrección.
 
-## 10. Qué sigue pendiente (no bloqueante)
+## 11. Cinco ajustes (2026-09-06)
+
+1. **Tasas Fed siempre al final** en Análisis fundamental, sin importar su peso.
+2. **DXY: piso de fuerza en la vela 350** (antes 580) — misma regla de 8 velas para armar
+   y 8 para romper la racha, aplica igual a los 3 activos. Verificado: racha de 84 velas →
+   fuerza 80.00% con el nuevo piso.
+3. **Motor 3 muestra el aporte en puntos** de Técnico (60%×fuerza) y Fundamental
+   (40%×fuerza), con signo según dirección — mismo concepto que el aporte ya mostrado en
+   cada señal de Análisis fundamental.
+4. **Títulos "Intraday"/"Inversión" resaltados** (más grandes, en negrita, color de
+   acento) en Análisis técnico, y Motor 3 ahora usa los mismos dos títulos con el mismo
+   estilo (antes decía "4H · swing / intradía" y "1D · inversión").
+5. **Historial de Nivel 2 en 15min reiniciado** — estaba contaminado por el mismo bug de
+   velas planas del punto 7: 1,387 rachas históricas de Estado 1 para BTC, con 509 (37%)
+   de una sola fila y duración promedio de apenas 11.56 minutos, arrastrando el promedio
+   histórico a "0h" siempre. Se borró el historial de 15min (los 3 activos) para que el
+   promedio se reconstruya limpio desde ahora; 4H se dejó intacto (afectación mínima).
+
+## 12. Qué sigue pendiente (no bloqueante)
 
 - Notificaciones push reales (el toggle en Ajustes hoy solo se guarda localmente).
 - Journal (Movimientos) y Fichas de inversión: funcionales, sin más ajustes solicitados
