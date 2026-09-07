@@ -240,7 +240,48 @@ tolerancia de 8 velas en contra) manteniendo el peso nuevo. Verificado: la racha
 Tasas Fed 70% · VIX 17% · DXY 13% (reemplaza el ajuste anterior de 65/15/20). BTC y US100
 sin cambios. Verificado con datos reales, suma 100%.
 
-## 15. Qué sigue pendiente (no bloqueante)
+## 16. DXY migrado a fuente sintética (Twelve Data) — 2026-09-07
+
+**Problema encontrado:** Yahoo Finance dejó de actualizar el histórico de velas de 15min
+del índice DXY (`DX-Y.NYB`) desde las 03:45 UTC, aunque su precio "en vivo" seguía
+correcto — confirmado como una falla del lado de Yahoo (no de nuestro código): probamos
+llamando a Yahoo directamente, corriendo el pipeline completo manualmente, y hasta
+insertando con la función de guardado a mano — Yahoo simplemente no tenía velas nuevas
+que entregar, 10 horas después y aún en la apertura del mercado.
+
+**Alternativas evaluadas:**
+- Símbolo del futuro real (`DX=F`) — no existe en Yahoo.
+- ETF proxy en Twelve Data (`UUP`) — funciona, pero solo cotiza en horario NYSE
+  (9:30am–4pm ET, lunes a viernes), perdiendo la cobertura casi continua original.
+- **Sintetizar el DXY desde sus 6 pares de divisas oficiales** (EUR/USD, USD/JPY,
+  GBP/USD, USD/CAD, USD/SEK, USD/CHF) vía Twelve Data — cobertura prácticamente continua
+  (forex opera 24/5), y el usuario confirmó probar el EUR/USD en Twelve Data: velas de
+  15min completamente continuas, sin huecos.
+
+**Implementado:**
+- API key de Twelve Data guardada en Supabase Vault (`twelvedata_api_key`), igual que la
+  de FRED — nunca en texto plano en el código.
+- `fn_disparar_dxy_fx()` / `fn_recolectar_dxy_fx()`: piden los 6 pares y calculan el DXY
+  con la **fórmula oficial del ICE**: `50.14348112 × EURUSD^-0.576 × USDJPY^0.136 ×
+  GBPUSD^-0.119 × USDCAD^0.091 × USDSEK^0.042 × USDCHF^0.036`, aplicada por separado a
+  open/high/low/close.
+- **Frecuencia: cada 15 minutos** (no cada 5, para no exceder el límite gratis de Twelve
+  Data de 800 consultas/día — 6 pares × 4 veces/hora × 24h = 576/día, con margen).
+- **Consulta 1 minuto después del cierre de cada vela** (a los :01/:16/:31/:46 de cada
+  hora), para capturar la vela recién cerrada, no una a medio formar.
+- Bug de precisión corregido en el camino: los cálculos con `power()` sobre `numeric`
+  generaban números con cientos de decimales (mismo problema ya visto en Nivel 1) —
+  resuelto calculando en `double precision` y redondeando el resultado final.
+- Quitado `DXY` de `asset_yahoo_symbols` para que el pipeline de Yahoo ya no lo intente.
+- `fn_calc_dxy_racha()` no necesitó ningún cambio — sigue leyendo de `prices_ohlcv` igual
+  que antes, sin saber ni importarle de dónde vino el precio. **Tampoco hizo falta tocar
+  el frontend** — la estructura de datos es idéntica.
+
+Verificado: racha que estaba pegada en 100 velas (por falta de datos nuevos) avanzó a 101
+apenas se activó la fuente nueva, con un valor de DXY (98.93) consistente con el precio
+real de mercado.
+
+## 17. Qué sigue pendiente (no bloqueante)
 
 - Notificaciones push reales (el toggle en Ajustes hoy solo se guarda localmente).
 - Journal (Movimientos) y Fichas de inversión: funcionales, sin más ajustes solicitados
