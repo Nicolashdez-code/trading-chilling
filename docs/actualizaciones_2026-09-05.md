@@ -235,7 +235,12 @@ tolerancia de 8 velas en contra) manteniendo el peso nuevo. Verificado: la racha
   DXY (punto 6) seguía intacta antes de aplicar el cambio — se revisó la función completa
   primero para no repetir la regresión accidental documentada anteriormente.
 
-## 14. Qué sigue pendiente (no bloqueante)
+## 14. Oro reajustado de nuevo (2026-09-06)
+
+Tasas Fed 70% · VIX 17% · DXY 13% (reemplaza el ajuste anterior de 65/15/20). BTC y US100
+sin cambios. Verificado con datos reales, suma 100%.
+
+## 15. Qué sigue pendiente (no bloqueante)
 
 - Notificaciones push reales (el toggle en Ajustes hoy solo se guarda localmente).
 - Journal (Movimientos) y Fichas de inversión: funcionales, sin más ajustes solicitados
