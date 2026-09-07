@@ -140,7 +140,11 @@ export default function Analysis() {
           <div className="card" style={{ marginBottom: 14 }}>
             <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 10 }}>Análisis fundamental</div>
             {[...nivel3]
-              .sort((a, b) => (b.peso ?? 0) - (a.peso ?? 0) || (a.senal === 'tasas_fed' ? -1 : b.senal === 'tasas_fed' ? 1 : 0))
+              .sort((a, b) => {
+                if (a.senal === 'tasas_fed') return 1
+                if (b.senal === 'tasas_fed') return -1
+                return (b.peso ?? 0) - (a.peso ?? 0)
+              })
               .map((row) => {
                 const featured = featuredResumen(row.senal, row.detalle, asset)
                 const aporte = aportePuntos(row.peso, row.fuerza, row.direction)
@@ -181,43 +185,64 @@ export default function Analysis() {
             <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 12 }}>Resultado final · Motor 3</div>
             <div className="motor3-grid">
               {[
-                { tf: '4h', label: '4H · swing / intradía', row: motor4h },
-                { tf: '1d', label: '1D · inversión', row: motor1d },
-              ].map(({ tf, label, row }) => (
-                <div key={tf} style={{ background: 'var(--bg-card-2)', borderRadius: 16, padding: 14 }}>
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6 }}>{label}</div>
-                  {row ? (
-                    <>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>Técnico (60%)</span>
-                        <span style={{ color: textColor(row.nivel1_direction) }}>{directionLabel(row.nivel1_direction)} {fmtPct(row.nivel1_fuerza)}</span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 10 }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>Fundamental (40%)</span>
-                        <span style={{ color: textColor(row.nivel3_direction) }}>{directionLabel(row.nivel3_direction)} {fmtPct(row.nivel3_fuerza)}</span>
-                      </div>
-                      {row.es_conflicto || row.score_final === null ? (
-                        <div style={{ fontSize: 24, fontWeight: 500, color: 'var(--neutral)' }}>No operar (conflicto)</div>
-                      ) : (
-                        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: 24, fontWeight: 500, color: textColor(row.resultado_direction) }}>{fmtPct(row.score_final)}</span>
-                          <span className={badgeClass(row.resultado_direction)}>{row.tamano_posicion}</span>
+                { tf: '4h', label: 'Intraday', sub: '4H', row: motor4h },
+                { tf: '1d', label: 'Inversión', sub: '1D', row: motor1d },
+              ].map(({ tf, label, sub, row }) => {
+                const aporteTec = row ? aportePuntos(60, row.nivel1_fuerza, row.nivel1_direction) : null
+                const aporteFun = row ? aportePuntos(40, row.nivel3_fuerza, row.nivel3_direction) : null
+                return (
+                  <div key={tf} style={{ background: 'var(--bg-card-2)', borderRadius: 16, padding: 14 }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 8 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '.04em' }}>{label}</span>
+                      <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{sub}</span>
+                    </div>
+                    {row ? (
+                      <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, marginBottom: 4 }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>Técnico (60%)</span>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ color: textColor(row.nivel1_direction) }}>{directionLabel(row.nivel1_direction)} {fmtPct(row.nivel1_fuerza)}</span>
+                            {aporteTec !== null && (
+                              <div style={{ fontSize: 10, fontWeight: 600, color: textColor(row.nivel1_direction) }}>
+                                {aporteTec >= 0 ? '+' : ''}{fmtNum(aporteTec, 1)} pts
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                      {tf === '4h' && row.timeframe_operativo_sugerido && (
-                        <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.5 }}>
-                          Sugerencia: entra en la temporalidad de {TIMEFRAME_LABELS[row.timeframe_operativo_sugerido]} y mantén la operación un máximo de {fmtNum(row.duracion_maxima_horas, 0)} horas.
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, marginBottom: 10 }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>Fundamental (40%)</span>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ color: textColor(row.nivel3_direction) }}>{directionLabel(row.nivel3_direction)} {fmtPct(row.nivel3_fuerza)}</span>
+                            {aporteFun !== null && (
+                              <div style={{ fontSize: 10, fontWeight: 600, color: textColor(row.nivel3_direction) }}>
+                                {aporteFun >= 0 ? '+' : ''}{fmtNum(aporteFun, 1)} pts
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                      {tf === '1d' && (
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, lineHeight: 1.5 }}>Horizonte de inversión: sin sugerencia de temporalidad ni duración.</div>
-                      )}
-                    </>
-                  ) : (
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Sin datos aún.</div>
-                  )}
-                </div>
-              ))}
+                        {row.es_conflicto || row.score_final === null ? (
+                          <div style={{ fontSize: 24, fontWeight: 500, color: 'var(--neutral)' }}>No operar (conflicto)</div>
+                        ) : (
+                          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: 24, fontWeight: 500, color: textColor(row.resultado_direction) }}>{fmtPct(row.score_final)}</span>
+                            <span className={badgeClass(row.resultado_direction)}>{row.tamano_posicion}</span>
+                          </div>
+                        )}
+                        {tf === '4h' && row.timeframe_operativo_sugerido && (
+                          <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.5 }}>
+                            Sugerencia: entra en la temporalidad de {TIMEFRAME_LABELS[row.timeframe_operativo_sugerido]} y mantén la operación un máximo de {fmtNum(row.duracion_maxima_horas, 0)} horas.
+                          </div>
+                        )}
+                        {tf === '1d' && (
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, lineHeight: 1.5 }}>Horizonte de inversión: sin sugerencia de temporalidad ni duración.</div>
+                        )}
+                      </>
+                    ) : (
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Sin datos aún.</div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </div>
         </>

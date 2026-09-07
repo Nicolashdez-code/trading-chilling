@@ -27,12 +27,12 @@ export default function TechGroup({ cols, nivel1, nivel2, title, showGroupHeader
         <div
           style={{
             gridColumn: `1 / ${cols.length + 2}`,
-            fontSize: 11,
-            fontWeight: 500,
-            color: 'var(--text-secondary)',
+            fontSize: 13,
+            fontWeight: 700,
+            color: 'var(--accent)',
             textTransform: 'uppercase',
-            letterSpacing: '.03em',
-            marginBottom: 2,
+            letterSpacing: '.04em',
+            marginBottom: 4,
           }}
         >
           {title}
@@ -48,9 +48,12 @@ export default function TechGroup({ cols, nivel1, nivel2, title, showGroupHeader
               style={{
                 gridColumn: `${g.start + 2} / ${g.start + 2 + g.count}`,
                 textAlign: 'center',
-                color: 'var(--text-secondary)',
-                fontSize: 10,
+                color: 'var(--accent)',
+                fontSize: 13,
+                fontWeight: 700,
                 textTransform: 'uppercase',
+                letterSpacing: '.04em',
+                marginBottom: 2,
               }}
             >
               {g.label}
